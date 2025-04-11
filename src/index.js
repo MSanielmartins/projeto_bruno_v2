@@ -1,19 +1,26 @@
-import express from 'express'
-import userRouter from './routers/UserRouters.js'
-import productRouter from './routers/ProductRouters.js'
-import cors from 'cors'
-import mongoose from 'mongoose'
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
+import userRouter from './routers/UserRouters.js';
+import productRouter from './routers/ProductRouters.js';
+import sequelize from './config/db.js';
 
-mongoose.connect('process.env.MONGODB_URI')
-const app = express()
+const app = express();
 
-app.use(express.json())
-app.use(cors())
+app.use(express.json());
+app.use(cors());
 
-app.use('/api', userRouter)
-app.use('/api', productRouter)
+app.use('/api', userRouter);
+app.use('/api', productRouter);
 
-
-app.listen(process.env.PORT, () => {
-    console.log('Server is running on http://localhost:${process.env.PORT}3000')
-})
+sequelize.sync()
+  .then(() => {
+    console.log('Banco de dados sincronizado com Sequelize');
+    const PORT = process.env.PORT;
+    app.listen(PORT, () => {
+      console.log(`Servidor rodando na porta http://localhost:${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error('Erro ao sincronizar com o banco de dados:', error);
+  });
